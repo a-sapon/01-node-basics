@@ -1,0 +1,26 @@
+{
+  "name": "01-node-basics",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a-sapon/01-node-basics.git"
+  },
+  "author": "Anna_Sapon <sapon.anya@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/a-sapon/01-node-basics/issues"
+  },
+  "homepage": "https://github.com/a-sapon/01-node-basics#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  },
+  "dependencies": {
+    "shortid": "^2.2.15"
+  }
+}
