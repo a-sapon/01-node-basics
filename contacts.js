@@ -9,12 +9,6 @@ function listContacts() {
   return result;
 }
 
-// async function listContacts() {
-//   return await fs.promises.readFile(contactsPath, 'utf8').then(data => {
-//     return data;
-//   });
-// }
-
 function getContactById(contactId) {
   const contactsArr = listContacts();
   return contactsArr.find(item => item.id === contactId);
