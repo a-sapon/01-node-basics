@@ -13,5 +13,5 @@ app.use(contactsRoutes);
 // morgan(':method :host :status :param[id] :res[content-length] - :response-time ms');
 
 app.listen(3030, () => {
-  console.log('Server is nunning on port 3030')
+  console.log('Server is nunning on port 3030');
 });

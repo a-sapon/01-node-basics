@@ -54,10 +54,31 @@ function removeContact(req, res) {
   }
 }
 
+function updateContact(req, res) {
+  if (Object.keys(req.body).length === 0) {
+    res.status(400).json({ message: 'missing fields' });
+  } else {
+    const id = Number(req.params.contactId);
+    let targetContact = contacts.find(item => item.id === id);
+    if (targetContact) {
+      targetContact = { ...targetContact, ...req.body };
+      const updatedContacts = contacts.filter(item => item.id !== id);
+      const newContactsArr = [...updatedContacts, targetContact];
+      fs.writeFile(contactsPath, JSON.stringify(newContactsArr), err => {
+        if (err) throw err;
+      });
+      res.status(200).json(targetContact);
+    } else {
+      res.status(404).json({ message: 'Not found' });
+    }
+  }
+}
+
 module.exports = {
   listContacts,
   getContactById,
   validateData,
+  addContact,
   removeContact,
-  addContact
+  updateContact
 };
