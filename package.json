@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "joi": "^14.3.1",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.2"
+  },
+  "devDependencies": {},
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -16,12 +23,5 @@
   "bugs": {
     "url": "https://github.com/a-sapon/01-node-basics/issues"
   },
-  "homepage": "https://github.com/a-sapon/01-node-basics#readme",
-  "devDependencies": {
-    "nodemon": "^2.0.2",
-    "yargs": "^15.3.1"
-  },
-  "dependencies": {
-    "shortid": "^2.2.15"
-  }
+  "homepage": "https://github.com/a-sapon/01-node-basics#readme"
 }
