@@ -10,10 +10,10 @@ const {
 
 const router = Router();
 
-router.get('/api/contacts', listContacts);
-router.get('/api/contacts/:contactId', getContactById);
-router.post('/api/contacts', validateData, addContact);
-router.delete('/api/contacts/:contactId', removeContact);
-router.patch('/api/contacts/:contactId', updateContact);
+router.get('/', listContacts);
+router.get('/:contactId', getContactById);
+router.post('', validateData, addContact);
+router.delete('/:contactId', removeContact);
+router.patch('/:contactId', updateContact);
 
 module.exports = router;

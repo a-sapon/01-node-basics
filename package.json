@@ -1,14 +1,14 @@
 {
   "name": "01-node-basics",
   "version": "1.0.0",
-  "description": "",
+  "description": "homework-03",
   "main": "index.js",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "joi": "^14.3.1",
-    "mongodb": "^3.5.5",
-    "morgan": "^1.10.0",
+    "mongoose": "^5.9.7",
     "nodemon": "^2.0.2"
   },
   "devDependencies": {},

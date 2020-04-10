@@ -1,25 +1,17 @@
 const fs = require('fs');
-// const path = require('path');
+const path = require('path');
 const Joi = require('joi');
 
-const MongoClient = require('mongodb').MongoClient;
-const DB_URL = 'mongodb+srv://admin:jKPnNmk1EeLm9B91@cluster0-hp8cu.mongodb.net/test?retryWrites=true&w=majority';
+const contactsPath = path.join(__dirname, '../', 'db', 'contacts.json');
+const contacts = JSON.parse(fs.readFileSync(contactsPath, 'utf8'));
 
-// const contactsPath = path.join(__dirname, '../', 'db', 'contacts.json');
-// const contacts = JSON.parse(fs.readFileSync(contactsPath, 'utf8'));
+// async function connectToDb() {
+//   const client = await MongoClient.connect(DB_URL);
 
-
-async function connectToDb() {
-  const client = await MongoClient.connect(DB_URL);
-
-  const db = client.db('db-contacts');
-  const collection = db.collection('contacts');
+//   const db = client.db('db-contacts');
+//   const collection = db.collection('contacts');
   
-}
-
-connectToDb();
-
-
+// }
 
 
 
