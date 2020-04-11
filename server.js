@@ -27,20 +27,29 @@ module.exports = class UserServer {
   }
 
   initRoutes() {
-    this.server.use('/api/contacts', contactsRoutes)
+    this.server.use('/api/contacts', contactsRoutes);
   }
 
   async initDB() {
-    await mongoose.connect(process.env.DB_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
+    try {
+      await mongoose.connect(process.env.DB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+      console.log('Database connection successful');
+    } catch (err) {
+      console.log(err);
+    }
+
+    mongoose.connection.on('error', err => {
+      console.log(err);
+      process.exit(1)
     });
-    console.log('connected to DB')
   }
 
   startListening() {
     this.server.listen(3030, () => {
       console.log('Server is nunning on port 3030');
-    })
+    });
   }
-}
+};
