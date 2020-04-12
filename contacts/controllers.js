@@ -1,6 +1,7 @@
+const Joi = require('joi');
 const contactModel = require('./model');
 const {
-  Types: { ObjectId },
+  Types: { ObjectId }
 } = require('mongoose');
 
 async function listContacts(req, res, next) {
@@ -47,12 +48,35 @@ async function removeContact(req, res, next) {
   }
 }
 
-async function updateContact(req, res) {
+async function updateContact(req, res, next) {
+  const { contactId } = req.params;
+  try {
+    const targetContact = await contactModel.findByIdAndUpdate(
+      contactId,
+      req.body,
+      { new: true }
+    );
+    targetContact
+      ? res.status(200).json(targetContact)
+      : res.status(404).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
+function validateInfoForUpdate(req, res, next) {
   if (Object.keys(req.body).length === 0) {
     res.status(400).json({ message: 'missing fields' });
   }
-  const { contactId } = req.params;
-  const targetContact = await contactModel.findByIdAndUpdate(contactId)
+
+  const schema = Joi.object().keys({
+    name: Joi.string(),
+    email: Joi.string().email({ minDomainAtoms: 2 }),
+    phone: Joi.string().regex(/^[0-9\- ]{10,20}$/)
+  });
+
+  const { error, value } = Joi.validate(req.body, schema);
+  error ? res.status(400).json({ message: error.details[0].message }) : next();
 }
 
 function validateId(req, res, next) {
@@ -66,5 +90,6 @@ module.exports = {
   addContact,
   removeContact,
   updateContact,
-  validateId,
+  validateInfoForUpdate,
+  validateId
 };
