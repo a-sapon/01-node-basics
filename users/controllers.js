@@ -15,20 +15,25 @@ module.exports = class UserController {
   async _createUser(req, res, next) {
     try {
       const { email, password, subscription, token } = req.body;
-      // this.validateEmail
+      
+      const existEmail = userModel.findOne({ email });
+      if (existEmail) {res.status(400).json({ message: 'Email in use' })};
 
       const hashPassword = await bcypt.hash(password, this.saltRounds);
+      // const token = await jwt.sign()
+
       const newUser = await userModel.create({
         email,
         password: hashPassword,
         subscription,
         token
       });
-      await newUser.save((err, savedUser) => {
+      await newUser.save(async(err, savedUser) => {
+        const token = await jwt.sign({ id: savedUser._id }, 'shhhhh');
         err
           ? res.status(400).json(err.message)
           : res.status(201).json({
-            token: '',
+            token,
             user: {
               email: savedUser.email,
               subscription: savedUser.subscription,
@@ -39,6 +44,32 @@ module.exports = class UserController {
     } catch (err) {
       next(err);
     }
+  }
+
+  async login(req, res, next) {
+    try {
+      const { email, password } = req.body;
+      const user = userModel.findOne({email});
+      if (!user) {
+        res.status(400).json({message: 'Email not registered'});
+      }
+      const validPassword = await bcypt.compare(password, user.password);
+      if (!validPassword) {
+        res.status(400).json({message: 'Неверный логин или пароль'});
+      }
+
+      const token = await jwt.sign({ id: user._id }, 'shhhhh');
+
+      res.status(200).json({
+        token,
+        user: {
+          email: user.email,
+          subscription: user.subscription,
+          id: user._id
+        }
+      })
+
+    } catch(err) {next(err)}
   }
 
   validateAuthInfo(req, res, next) {
@@ -57,11 +88,5 @@ module.exports = class UserController {
     error
       ? res.status(422).json({ message: error.details[0].message })
       : next();
-  }
-
-  validateEmail(req, res, next) {
-    const { email } = req.body;
-    const existingEmail = userModel.findOne({ email });
-    existingEmail ? res.status(400).json({ message: 'Email in use' }) : next();
   }
 };

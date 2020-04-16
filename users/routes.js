@@ -4,6 +4,7 @@ const userController = new UserController();
 
 const router = Router();
 
-router.post('/auth/register', userController.validateAuthInfo, userController.createUser);
+router.post('/register', userController.validateAuthInfo, userController.createUser);
+router.post('/login');
 
 module.exports = router;
