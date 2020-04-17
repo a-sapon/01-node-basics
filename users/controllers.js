@@ -104,6 +104,9 @@ module.exports = class UserController {
 
   async verifyToken(req, res, next) {
     const authorizationHeader = req.get('Authorization');
+    if (!authorizationHeader) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
     const token = authorizationHeader.replace('Bearer ', '');
     try {
       const userId = jwt.verify(token, process.env.JWT_SECRET).id;
@@ -120,12 +123,19 @@ module.exports = class UserController {
 
   async logout(req, res, next) {
     try {
-      const user = await userModel.findById(req.user._id);
-      if (!user) {
-        return res.status(401).json({ message: 'Not authorized' });
-      }
       await userModel.findByIdAndUpdate(req.user._id, { token: null });
       res.status(200).json({ message: 'Logout success' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getUser(req, res, next) {
+    try {
+      const user = await userModel.findById(req.user._id);
+      res
+        .status(200)
+        .json({ email: user.email, subscription: user.subscription });
     } catch (err) {
       next(err);
     }
