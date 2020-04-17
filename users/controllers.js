@@ -24,13 +24,14 @@ module.exports = class UserController {
       const newUser = await userModel.create({
         email,
         password: hashPassword,
-        subscription
+        subscription,
+        // token: нужно записать токен в БД, но у меня нет user id
       });
       await newUser.save((err, savedUser) => {
         err
           ? res.status(400).json(err.message)
           : res.status(201).json({
-              token: jwt.sign({ id: savedUser._id }, 'shhhhh'),
+              token: jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET),
               user: {
                 email: savedUser.email,
                 subscription: savedUser.subscription
@@ -54,7 +55,7 @@ module.exports = class UserController {
         return res.status(400).json({ message: 'Неверный логин или пароль' });
       }
 
-      const token = jwt.sign({ id: user._id }, 'shhhhh');
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
       res.status(200).json({
         token,
         user: {
@@ -98,5 +99,23 @@ module.exports = class UserController {
     error
       ? res.status(422).json({ message: error.details[0].message })
       : next();
+  }
+
+  async verifyToken(req, res, next) {
+    const authorizationHeader = req.get('Authorization');
+    const token = authorizationHeader.replace('Bearer ', '');
+    try {
+      const userId = jwt.verify(token, process.env.JWT_SECRET).id;
+      const user = await userModel.findById(userId);
+      if (!user || user.token !== token) {
+        return res.status(401).json({ message: 'Not authorized' });
+      }
+      req.user = user;
+      next();
+    } catch (err) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    res.status(204).send();
   }
 };
