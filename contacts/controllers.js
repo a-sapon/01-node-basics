@@ -6,8 +6,8 @@ const {
 
 async function listContacts(req, res, next) {
   try {
-    const contacts = await contactModel.find();
-    res.status(200).json(contacts);
+    const result = await contactModel.paginate({}, req.query);
+    res.status(200).json(result.docs);
   } catch (err) {
     next(err);
   }

@@ -25,13 +25,11 @@ module.exports = class UserController {
         email,
         password: hashPassword,
         subscription
-        // token: нужно записать токен в БД, но у меня еще нет user id
       });
       await newUser.save((err, savedUser) => {
         err
           ? res.status(400).json(err.message)
           : res.status(201).json({
-              // token: jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET),
               user: {
                 email: savedUser.email,
                 subscription: savedUser.subscription
