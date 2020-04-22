@@ -2,6 +2,9 @@ const Joi = require('joi');
 const userModel = require('./model');
 const bcypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const imagemin = require('imagemin');
+const imageminJpegtran = require('imagemin-jpegtran');
+const imageminPngquant = require('imagemin-pngquant');
 
 module.exports = class UserController {
   constructor() {
@@ -138,4 +141,22 @@ module.exports = class UserController {
       next(err);
     }
   }
+
+  minifyImg(req, res, next) {
+  try{await imagemin([`${req.file.path}`], {
+    destination: 'public/images',
+    plugins: [
+      imageminJpegtran(),
+      imageminPngquant({
+        quality: [0.6, 0.8]
+      })
+    ]
+  });
+
+  req.file.path = path.join('public', 'images', req.file.filename);
+  req.file.destination = 'public/images'
+
+  console.log('minified');
+  next();}catch(err) {next(err)}
+}
 };

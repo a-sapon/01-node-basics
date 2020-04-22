@@ -3,9 +3,6 @@ const contactModel = require('./model');
 const {
   Types: { ObjectId }
 } = require('mongoose');
-const imagemin = require('imagemin');
-const imageminJpegtran = require('imagemin-jpegtran');
-const imageminPngquant = require('imagemin-pngquant');
 
 async function listContacts(req, res, next) {
   try {
@@ -91,24 +88,6 @@ function validateId(req, res, next) {
   const { contactId } = req.params;
   ObjectId.isValid(contactId) ? next() : res.status(400).send();
 }
-
-// async function minifyImg(req, res, next) {
-//   try{await imagemin([`${req.file.path}`], {
-//     destination: 'uploads',
-//     plugins: [
-//       imageminJpegtran(),
-//       imageminPngquant({
-//         quality: [0.6, 0.8]
-//       })
-//     ]
-//   });
-
-//   req.file.path = path.join('uploads', req.file.filename);
-//   req.file.destination = 'uploads'
-
-//   console.log('minified');
-//   next();}catch(err) {next(err)}
-// }
 
 module.exports = {
   listContacts,
