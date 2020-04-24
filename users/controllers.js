@@ -1,10 +1,15 @@
-const Joi = require('joi');
 const userModel = require('./model');
+const fs = require('fs');
+const path = require('path');
+const Joi = require('joi');
 const bcypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const imagemin = require('imagemin');
 const imageminJpegtran = require('imagemin-jpegtran');
 const imageminPngquant = require('imagemin-pngquant');
+const Avatar = require('avatar-builder');
+const avatar = Avatar.identiconBuilder(128);
+const shortId = require('shortid');
 
 module.exports = class UserController {
   constructor() {
@@ -24,10 +29,15 @@ module.exports = class UserController {
       }
 
       const hashPassword = await bcypt.hash(password, this.saltRounds);
+      const newAvatar = `avatar_${shortId()}.png`
+      avatar
+        .create('gabriel')
+        .then(buffer => fs.writeFileSync(`./tmp/${newAvatar}`, buffer));
       const newUser = await userModel.create({
         email,
         password: hashPassword,
-        subscription
+        subscription,
+        avatarURL: `http://localhost:3030/${newAvatar}`
       });
       await newUser.save((err, savedUser) => {
         err
@@ -35,7 +45,8 @@ module.exports = class UserController {
           : res.status(201).json({
               user: {
                 email: savedUser.email,
-                subscription: savedUser.subscription
+                subscription: savedUser.subscription,
+                avatarURL: savedUser.avatarURL
               }
             });
       });
@@ -62,7 +73,8 @@ module.exports = class UserController {
         token,
         user: {
           email: user.email,
-          subscription: user.subscription
+          subscription: user.subscription,
+          avatarURL: user.avatarURL
         }
       });
     } catch (err) {
@@ -142,21 +154,35 @@ module.exports = class UserController {
     }
   }
 
-  minifyImg(req, res, next) {
-  try{await imagemin([`${req.file.path}`], {
-    destination: 'public/images',
-    plugins: [
-      imageminJpegtran(),
-      imageminPngquant({
-        quality: [0.6, 0.8]
-      })
-    ]
-  });
+  async minifyImg(req, res, next) {
+    try {
+      console.log('req.file.path', req.file.path);
+      await imagemin([req.file.path], {
+        destination: 'public/images',
+        plugins: [
+          imageminJpegtran(),
+          imageminPngquant({
+            quality: [0.6, 0.8]
+          })
+        ]
+      });
 
-  req.file.path = path.join('public', 'images', req.file.filename);
-  req.file.destination = 'public/images'
+      const {filename} = req.file;
+      req.file.path = path.join('public', 'images', filename);
+      req.file.destination = path.join('public', 'images');
+      next();
+    } catch (err) {
+      next(err);
+    }
+  }
 
-  console.log('minified');
-  next();}catch(err) {next(err)}
-}
+  async changeAvatar(req, res, next) {
+    try {
+      res.status(200).send();
+      // change avatar for req.user
+
+    } catch(err) {
+      next(err)
+    }
+  }
 };
