@@ -1,5 +1,6 @@
 const userModel = require('./model');
 const fs = require('fs');
+const {promises: fsPromises} = require('fs');
 const path = require('path');
 const Joi = require('joi');
 const bcypt = require('bcrypt');
@@ -29,7 +30,7 @@ module.exports = class UserController {
       }
 
       const hashPassword = await bcypt.hash(password, this.saltRounds);
-      const newAvatar = `avatar_${shortId()}.png`
+      const newAvatar = `avatar_${shortId()}.png`;
       avatar
         .create('gabriel')
         .then(buffer => fs.writeFileSync(`./tmp/${newAvatar}`, buffer));
@@ -156,9 +157,12 @@ module.exports = class UserController {
 
   async minifyImg(req, res, next) {
     try {
-      console.log('req.file.path', req.file.path);
-      await imagemin([req.file.path], {
-        destination: 'public/images',
+      const parsedUrl = req.user.avatarURL.split('/');
+      const oldAvatar = parsedUrl[parsedUrl.length - 1];
+      await fsPromises.unlink(`tmp/${oldAvatar}`);
+      
+      await imagemin([`tmp/${req.file.filename}`], {
+        destination: ('public/images'),
         plugins: [
           imageminJpegtran(),
           imageminPngquant({
@@ -167,9 +171,10 @@ module.exports = class UserController {
         ]
       });
 
-      const {filename} = req.file;
-      req.file.path = path.join('public', 'images', filename);
-      req.file.destination = path.join('public', 'images');
+      const { filename, path: tmpPath } = req.file;
+      req.file.path = path.join(__dirname, '..', 'public', 'images', filename);
+      req.file.destination = path.join(__dirname, '..', 'public', 'images');
+      await fsPromises.unlink(tmpPath);
       next();
     } catch (err) {
       next(err);
@@ -178,11 +183,13 @@ module.exports = class UserController {
 
   async changeAvatar(req, res, next) {
     try {
-      res.status(200).send();
-      // change avatar for req.user
-
-    } catch(err) {
-      next(err)
+      await userModel.findByIdAndUpdate(
+        req.user._id,
+        { avatarURL: req.file.path }
+      );
+      res.status(201).json({message: 'Avatar changed'});
+    } catch (err) {
+      next(err);
     }
   }
 };
