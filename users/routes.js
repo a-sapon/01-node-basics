@@ -33,4 +33,6 @@ router.patch(
   userController.changeAvatar
 );
 
+router.get('/otp/:otpCode', userController.completeRegister);
+
 module.exports = router;

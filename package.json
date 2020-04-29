@@ -4,6 +4,7 @@
   "description": "homework-03",
   "main": "index.js",
   "dependencies": {
+    "@sendgrid/mail": "^7.0.1",
     "avatar-builder": "^1.0.1",
     "bcrypt": "^4.0.1",
     "cors": "^2.8.5",
