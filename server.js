@@ -3,23 +3,31 @@ require('dotenv').config();
 const cors = require('cors');
 const contactRouter = require('./contacts/routes');
 const userRouter = require('./users/routes');
+const chatRouter = require('./chats/routes');
 const mongoose = require('mongoose');
+const http = require('http');
+const io = require('socket.io');
 
 module.exports = class UserServer {
   constructor() {
     this.server = null;
+    this.httpServer = null;
+    this.io = null;
   }
 
   start() {
     this.initServer();
     this.initMiddlewares();
     this.initRoutes();
+    this.initWsHandlers();
     this.initDB();
     this.startListening();
   }
 
   initServer() {
     this.server = express();
+    this.httpServer = http.createServer(this.server);
+    this.io = io(this.httpServer);
   }
 
   initMiddlewares() {
@@ -32,6 +40,15 @@ module.exports = class UserServer {
   initRoutes() {
     this.server.use('/api/contacts', contactRouter);
     this.server.use('/api/users' , userRouter);
+    this.server.use(chatRouter);
+  }
+
+  initWsHandlers() {
+    this.io.on('connection', (socket) => {
+      socket.on('chat message', (msg) => {
+        this.io.emit('chat message', msg);
+      });
+    });
   }
 
   async initDB() {
@@ -52,7 +69,7 @@ module.exports = class UserServer {
   }
 
   startListening() {
-    this.server.listen(3030, () => {
+    this.httpServer.listen(3030, () => {
       console.log('Server is nunning on port 3030');
     });
   }
