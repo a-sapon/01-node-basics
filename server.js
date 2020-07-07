@@ -25,6 +25,8 @@ module.exports = class UserServer {
   initMiddlewares() {
     this.server.use(cors());
     this.server.use(express.json());
+    this.server.use(express.static('public'));
+    this.server.use(express.static('tmp'));
   }
 
   initRoutes() {
